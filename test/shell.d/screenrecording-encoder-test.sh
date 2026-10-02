@@ -35,17 +35,26 @@ cat >"$stub_bin/lspci" <<'SH'
 printf '%s\n' "$OMARCHY_TEST_PCI_DEVICES"
 SH
 
+# A recording already running on this machine must not send the script down its stop path.
+cat >"$stub_bin/pgrep" <<'SH'
+#!/bin/bash
+
+exit 1
+SH
+
 for command in omarchy-hyprland-monitor-focused omarchy-shell omarchy-notification-send; do
   cat >"$stub_bin/$command" <<'SH'
 #!/bin/bash
 
 [[ ${0##*/} == "omarchy-hyprland-monitor-focused" ]] && echo "eDP-1"
+exit 0
 SH
 done
 
 chmod +x "$stub_bin"/*
 
 export HOME="$tmp_dir"
+export XDG_RUNTIME_DIR="$tmp_dir"
 export PATH="$stub_bin:$PATH"
 export OMARCHY_SCREENRECORD_DIR="$tmp_dir/Videos"
 export OMARCHY_TEST_RECORDER_ARGS="$tmp_dir/recorder-args"
